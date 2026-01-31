@@ -1,0 +1,325 @@
+@import 'variables';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: $text-color;
+    background-color: $bg-color;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+}
+
+// Header
+.header {
+    background: $white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: $spacing-md 0;
+    margin-bottom: $spacing-xl;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $primary-color;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: $spacing-md;
+}
+
+.nav-link {
+    color: $text-color;
+    text-decoration: none;
+    transition: color 0.3s;
+    
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+// Page Title
+.page-title {
+    font-size: 2.5rem;
+    margin-bottom: $spacing-lg;
+    color: $secondary-color;
+}
+
+// Category Section
+.category-section {
+    margin-bottom: $spacing-xl;
+}
+
+.category-header {
+    margin-bottom: $spacing-lg;
+}
+
+.category-title {
+    font-size: 2rem;
+    color: $secondary-color;
+    margin-bottom: $spacing-sm;
+}
+
+.category-description {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+// Posts Grid
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+}
+
+// Post Card
+.post-card {
+    background: $white;
+    border-radius: $border-radius;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+}
+
+.post-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.post-content {
+    padding: $spacing-md;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    margin-bottom: $spacing-sm;
+    
+    a {
+        color: $secondary-color;
+        text-decoration: none;
+        transition: color 0.3s;
+        
+        &:hover {
+            color: $primary-color;
+        }
+    }
+}
+
+.post-description {
+    color: #666;
+    margin-bottom: $spacing-md;
+    line-height: 1.5;
+}
+
+.post-meta {
+    display: flex;
+    gap: $spacing-md;
+    font-size: 0.9rem;
+    color: #999;
+}
+
+// Button
+.btn {
+    display: inline-block;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $border-radius;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: $primary-color;
+    color: $white;
+    
+    &:hover {
+        background: darken($primary-color, 10%);
+    }
+}
+
+.category-footer {
+    text-align: center;
+    margin-top: $spacing-lg;
+}
+
+// Empty State
+.empty-state {
+    text-align: center;
+    padding: $spacing-xl;
+    color: #999;
+}
+
+// Footer
+.footer {
+    background: $secondary-color;
+    color: $white;
+    padding: $spacing-lg 0;
+    margin-top: $spacing-xl;
+    text-align: center;
+}
+
+// Category Page
+.category-info {
+    margin-bottom: $spacing-lg;
+}
+
+.category-controls {
+    margin-bottom: $spacing-lg;
+}
+
+.sort-controls {
+    display: flex;
+    gap: $spacing-md;
+    align-items: center;
+}
+
+.sort-link {
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius;
+    text-decoration: none;
+    color: $text-color;
+    border: 1px solid $border-color;
+    transition: all 0.3s;
+    
+    &:hover {
+        background: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+    }
+    
+    &.active {
+        background: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+    }
+}
+
+// Pagination
+.pagination {
+    display: flex;
+    gap: $spacing-sm;
+    justify-content: center;
+    margin-top: $spacing-lg;
+}
+
+.pagination-link {
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius;
+    text-decoration: none;
+    color: $text-color;
+    border: 1px solid $border-color;
+    transition: all 0.3s;
+    
+    &:hover {
+        background: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+    }
+    
+    &.active {
+        background: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+    }
+}
+
+// Post Page
+.post-page {
+    background: $white;
+    padding: $spacing-xl;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.post-header {
+    margin-bottom: $spacing-lg;
+}
+
+.post-categories {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+    margin: $spacing-md 0;
+}
+
+.category-badge {
+    background: $primary-color;
+    color: $white;
+    padding: $spacing-xs $spacing-md;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+    
+    &:hover {
+        background: darken($primary-color, 10%);
+    }
+}
+
+.post-main-image {
+    width: 100%;
+    margin-bottom: $spacing-lg;
+    
+    img {
+        width: 100%;
+        border-radius: $border-radius;
+    }
+}
+
+.post-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: $spacing-xl;
+}
+
+.similar-posts {
+    margin-top: $spacing-xl;
+    padding-top: $spacing-xl;
+    border-top: 2px solid $border-color;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    margin-bottom: $spacing-lg;
+    color: $secondary-color;
+}
+
+@media (max-width: $mobile) {
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "my-blog-styles",
+  "version": "1.0.0",
+  "description": "SCSS styles for blog",
+  "scripts": {
+    "scss": "sass public/scss/style.scss public/css/style.css",
+    "watch": "sass --watch public/scss/style.scss public/css/style.css"
+  },
+  "devDependencies": {
+    "sass": "^1.58.0"
+  }
+}

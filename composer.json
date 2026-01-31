@@ -1,0 +1,16 @@
+{
+    "name": "myblog/simple-blog",
+    "description": "Simple PHP blog without frameworks",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "smarty/smarty": "^4.3",
+      "ext-pdo": "*",
+      "ext-fileinfo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
