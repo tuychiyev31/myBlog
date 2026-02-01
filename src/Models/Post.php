@@ -152,43 +152,6 @@ class Post
         }
     }
 
-    public function updateWithCategories(int $postId, array $data, array $categoryIds): bool
-    {
-        try {
-            $this->db->getConnection()->beginTransaction();
-
-            $sql = "
-            UPDATE posts 
-            SET title = ?, description = ?, content = ?, image = ?
-            WHERE id = ?
-        ";
-            $this->db->query($sql, [
-                $data['title'],
-                $data['description'],
-                $data['content'],
-                $data['image'],
-                $postId
-            ]);
-
-            $sql = "DELETE FROM post_categories WHERE post_id = ?";
-            $this->db->query($sql, [$postId]);
-
-            if (!empty($categoryIds)) {
-                foreach ($categoryIds as $categoryId) {
-                    $sql = "INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)";
-                    $this->db->query($sql, [$postId, $categoryId]);
-                }
-            }
-
-            $this->db->getConnection()->commit();
-            return true;
-
-        } catch (\Exception $e) {
-            $this->db->getConnection()->rollBack();
-            throw $e;
-        }
-    }
-
     public function getAll(): array
     {
         $sql = "SELECT * FROM posts ORDER BY created_at DESC";
