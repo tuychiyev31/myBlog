@@ -85,19 +85,11 @@ class AdminController
                 $imageUrl = $this->fileUploader->upload($_FILES['image']);
             }
 
-            $postData = [
-                'title' => $_POST['title'],
-                'description' => $_POST['description'],
-                'content' => $_POST['content'],
-                'image' => $imageUrl
-            ];
-
             $categoryIds = $_POST['categories'] ?? [];
-
-            $this->postModel->createWithCategories($postData, $categoryIds);
-
+            $this->postModel->createWithCategories($_POST, $imageUrl, $categoryIds);
 
             header('Location: /admin/dashboard');
+
             exit;
         } catch (\Exception $e) {
             $categories = $this->categoryModel->getAll();

@@ -3,14 +3,20 @@
 namespace App\Models;
 
 use App\Database\Database;
+use App\Factory\CategoryFactory;
+use App\Manager\CategoryManager;
 
 class Category
 {
     private Database $db;
+    private CategoryFactory $categoryFactory;
+    private CategoryManager $categoryManager;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->categoryFactory = new CategoryFactory();
+        $this->categoryManager = new CategoryManager();
     }
 
     public function getAll(): array
@@ -55,9 +61,7 @@ class Category
 
     public function create(array $data): int
     {
-        $sql = "INSERT INTO categories (name, description, created_at) VALUES (?, ?, NOW())";
-        $this->db->query($sql, [$data['name'], $data['description']]);
-        
-        return (int)$this->db->lastInsertId();
+        $category = $this->categoryFactory->create($data);
+        return $this->categoryManager->save($category);
     }
 }

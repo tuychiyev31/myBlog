@@ -203,7 +203,7 @@ foreach ($categoryIds as $index => $categoryId) {
         );
 
         try {
-            $postId = $postModel->createWithCategories($postData, $templateCategoryIds);
+            $postId = $postModel->createWithCategories($postData, $image, $templateCategoryIds);
         } catch (\Throwable $e) {
             echo "✗ Error creating post: {$title} — {$e->getMessage()}\n";
         }

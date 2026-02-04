@@ -3,14 +3,20 @@
 namespace App\Models;
 
 use App\Database\Database;
+use App\Factory\PostFactory;
+use App\Manager\PostManager;
 
 class Post
 {
     private Database $db;
+    private PostManager $postManager;
+    private PostFactory $postFactory;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->postManager = new PostManager();
+        $this->postFactory = new PostFactory();
     }
 
     public function getLatestByCategory(int $categoryId, int $limit = 3): array
@@ -101,23 +107,6 @@ class Post
         $this->db->query($sql, [$id]);
     }
 
-    private function create(array $data): int
-    {
-        $sql = "
-            INSERT INTO posts (title, description, content, image, views, created_at) 
-            VALUES (?, ?, ?, ?, 0, NOW())
-        ";
-
-        $this->db->query($sql, [
-            $data['title'],
-            $data['description'],
-            $data['content'],
-            $data['image']
-        ]);
-
-        return (int)$this->db->lastInsertId();
-    }
-
     private function attachCategories(int $postId, array $categoryIds): void
     {
         $values = [];
@@ -134,12 +123,13 @@ class Post
     }
 
 
-    public function createWithCategories(array $data, array $categoryIds): int
+    public function createWithCategories(array $data, ?string $imageUrl, array $categoryIds): int
     {
         try {
             $this->db->getConnection()->beginTransaction();
 
-            $postId = $this->create($data);
+            $post = $this->postFactory->create($data, $imageUrl);
+            $postId = $this->postManager->save($post);
             $this->attachCategories($postId, $categoryIds);
 
             $this->db->getConnection()->commit();
