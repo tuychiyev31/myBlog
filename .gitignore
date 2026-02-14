@@ -1,0 +1,27 @@
+# Composer dependencies
+vendor/
+
+# NPM dependencies
+node_modules/
+
+# Smarty cache
+templates_c/
+cache/
+
+# Uploaded files
+public/uploads/posts/*
+!public/uploads/posts/.gitkeep
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
