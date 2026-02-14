@@ -2,45 +2,44 @@
 
 namespace App\Controllers;
 
-use App\Models\Category;
-use App\Models\Post;
-use Smarty;
+use App\Repositories\CategoryRepository;
+use App\Repositories\PostRepository;
+use App\Services\PostService;
 
 class PostController
 {
-    private Smarty $smarty;
-    private Category $categoryModel;
-    private Post $postModel;
+    private $smarty;
+    private CategoryRepository $categoryRepository;
+    private PostRepository $postRepository;
+    private PostService $postService;
 
-    public function __construct(Smarty $smarty)
+    public function __construct($smarty)
     {
         $this->smarty = $smarty;
-        $this->categoryModel = new Category();
-        $this->postModel = new Post();
+        $this->categoryRepository = new CategoryRepository();
+        $this->postRepository = new PostRepository();
+        $this->postService = new PostService($this->postRepository);
     }
 
     public function show(string $id): void
     {
-    	$postId = (int)$id;
-        $post = $this->postModel->getById($postId);
-    
+        $postId = (int)$id;
+
+        $post = $this->postService->getPostAndIncrementViews($postId);
+
         if (!$post) {
             http_response_code(404);
-            echo "Post not found";
+            echo "404 - Post not found";
             return;
         }
 
-        $this->postModel->incrementViews($postId);
-        $post['views']++;
+        $categories = $this->categoryRepository->findPostCategories($postId);
+        $similarPosts = $this->postRepository->findSimilar($postId, 3);
 
-        $categories = $this->categoryModel->getPostCategories($postId);
-        $similarPosts = $this->postModel->getSimilar($postId, 3);
-    
         $this->smarty->assign('post', $post);
         $this->smarty->assign('categories', $categories);
         $this->smarty->assign('similarPosts', $similarPosts);
-        
+
         $this->smarty->display('post.tpl');
     }
 }
-

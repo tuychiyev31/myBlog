@@ -3,16 +3,16 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Database\Database;
-use App\Models\Category;
-use App\Models\Post;
+use App\Repositories\CategoryRepository;
+use App\Repositories\PostRepository;
 
 echo "==========================================\n";
 echo "  DATABASE SEEDING STARTED\n";
 echo "==========================================\n\n";
 
 $db = Database::getInstance();
-$categoryModel = new Category();
-$postModel = new Post();
+$categoryRepository = new CategoryRepository();
+$postRepository = new PostRepository();
 
 
 $categories = [
@@ -41,7 +41,7 @@ $categories = [
 $categoryIds = [];
 
 foreach ($categories as $category) {
-    $id = $categoryModel->create($category);
+    $id = $categoryRepository->create($category);
     $categoryIds[] = $id;
     echo "✓ Category created: {$category['name']} (ID: {$id})\n";
 }
@@ -203,7 +203,7 @@ foreach ($categoryIds as $index => $categoryId) {
         );
 
         try {
-            $postId = $postModel->createWithCategories($postData, $image, $templateCategoryIds);
+            $postId = $postRepository->createWithCategories($postData, $image, $templateCategoryIds);
         } catch (\Throwable $e) {
             echo "✗ Error creating post: {$title} — {$e->getMessage()}\n";
         }

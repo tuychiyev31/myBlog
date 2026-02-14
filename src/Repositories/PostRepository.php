@@ -1,25 +1,31 @@
 <?php
 
-namespace App\Models;
+namespace App\Repositories;
 
 use App\Database\Database;
 use App\Factory\PostFactory;
 use App\Manager\PostManager;
 
-class Post
+class PostRepository implements PostRepositoryInterface
 {
     private Database $db;
-    private PostManager $postManager;
     private PostFactory $postFactory;
+    private PostManager $postManager;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->postManager = new PostManager();
         $this->postFactory = new PostFactory();
+        $this->postManager = new PostManager();
     }
 
-    public function getLatestByCategory(int $categoryId, int $limit = 3): array
+    public function findById(int $id): ?array
+    {
+        $sql = "SELECT * FROM posts WHERE id = ?";
+        return $this->db->fetchOne($sql, [$id]);
+    }
+
+    public function findLatestByCategory(int $categoryId, int $limit = 3): array
     {
         $sql = "
             SELECT p.* 
@@ -29,17 +35,15 @@ class Post
             ORDER BY p.created_at DESC
             LIMIT ?
         ";
-
         return $this->db->fetchAll($sql, [$categoryId, $limit]);
     }
 
-    public function getByCategory(
-        int    $categoryId,
+    public function findByCategory(
+        int $categoryId,
         string $orderBy = 'created_at',
-        int    $page = 1,
-        int    $perPage = 10
-    ): array
-    {
+        int $page = 1,
+        int $perPage = 9
+    ): array {
         $offset = ($page - 1) * $perPage;
 
         $allowedOrderBy = ['created_at', 'views'];
@@ -59,7 +63,7 @@ class Post
         return $this->db->fetchAll($sql, [$categoryId, $perPage, $offset]);
     }
 
-    public function getCountByCategory(int $categoryId): int
+    public function countByCategory(int $categoryId): int
     {
         $sql = "
             SELECT COUNT(DISTINCT p.id) as count
@@ -69,18 +73,10 @@ class Post
         ";
 
         $result = $this->db->fetchOne($sql, [$categoryId]);
-
         return (int)($result['count'] ?? 0);
     }
 
-    public function getById(int $id): ?array
-    {
-        $sql = "SELECT * FROM posts WHERE id = ?";
-
-        return $this->db->fetchOne($sql, [$id]);
-    }
-
-    public function getSimilar(int $postId, int $limit = 3): array
+    public function findSimilar(int $postId, int $limit = 3): array
     {
         $sql = "
             SELECT DISTINCT p.*, COUNT(pc2.category_id) as common_categories
@@ -99,29 +95,6 @@ class Post
 
         return $this->db->fetchAll($sql, [$postId, $postId, $limit]);
     }
-
-    public function incrementViews(int $id): void
-    {
-        $sql = "UPDATE posts SET views = views + 1 WHERE id = ?";
-
-        $this->db->query($sql, [$id]);
-    }
-
-    private function attachCategories(int $postId, array $categoryIds): void
-    {
-        $values = [];
-        $params = [];
-
-        foreach ($categoryIds as $categoryId) {
-            $values[] = '(?, ?)';
-            $params[] = $postId;
-            $params[] = $categoryId;
-        }
-
-        $sql = "INSERT INTO post_categories (post_id, category_id) VALUES " . implode(',', $values);
-        $this->db->query($sql, $params);
-    }
-
 
     public function createWithCategories(array $data, ?string $imageUrl, array $categoryIds): int
     {
@@ -142,10 +115,30 @@ class Post
         }
     }
 
+    private function attachCategories(int $postId, array $categoryIds): void
+    {
+        $values = [];
+        $params = [];
+
+        foreach ($categoryIds as $categoryId) {
+            $values[] = '(?, ?)';
+            $params[] = $postId;
+            $params[] = $categoryId;
+        }
+
+        $sql = "INSERT INTO post_categories (post_id, category_id) VALUES " . implode(',', $values);
+        $this->db->query($sql, $params);
+    }
+
+    public function incrementViews(int $id): void
+    {
+        $sql = "UPDATE posts SET views = views + 1 WHERE id = ?";
+        $this->db->query($sql, [$id]);
+    }
+
     public function getAll(): array
     {
         $sql = "SELECT * FROM posts ORDER BY created_at DESC";
         return $this->db->fetchAll($sql);
     }
 }
-

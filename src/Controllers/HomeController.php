@@ -2,49 +2,36 @@
 
 namespace App\Controllers;
 
-use App\Models\Category;
-use App\Models\Post;
-use Smarty;
+use App\Repositories\CategoryRepository;
+use App\Repositories\PostRepository;
 
 class HomeController
 {
-    private Smarty $smarty;
-    private Category $categoryModel;
-    private Post $postModel;
+    private $smarty;
+    private CategoryRepository $categoryRepository;
+    private PostRepository $postRepository;
 
     public function __construct($smarty)
     {
         $this->smarty = $smarty;
-        $this->categoryModel = new Category();
-        $this->postModel = new Post();
+        $this->categoryRepository = new CategoryRepository();
+        $this->postRepository = new PostRepository();
     }
 
-    /**
-     * @throws \SmartyException
-     */
     public function index(): void
     {
-        $categories = $this->categoryModel->getCategoriesWithPosts();
-
-        // DEBUG
-        error_log("Categories count: " . count($categories));
+        $categories = $this->categoryRepository->findWithPosts();
 
         $categoriesWithPosts = [];
 
         foreach ($categories as $category) {
-            $posts = $this->postModel->getLatestByCategory($category['id'], 3);
-
-            // DEBUG
-            error_log("Category {$category['name']}: " . count($posts) . " posts");
+            $posts = $this->postRepository->findLatestByCategory($category['id'], 3);
 
             $categoriesWithPosts[] = [
                 'category' => $category,
                 'posts' => $posts
             ];
         }
-
-        error_log("Total categoriesWithPosts: " . count($categoriesWithPosts));
-        error_log("Data: " . print_r($categoriesWithPosts, true));
 
         $this->smarty->assign('categoriesWithPosts', $categoriesWithPosts);
         $this->smarty->display('home.tpl');

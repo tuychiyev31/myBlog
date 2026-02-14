@@ -2,25 +2,29 @@
 
 namespace App\Controllers;
 
-use App\Models\Category;
-use App\Models\Post;
+use App\Repositories\CategoryRepository;
+use App\Repositories\PostRepository;
+use App\Services\PostService;
 use App\Helpers\FileUploader;
 
 class AdminController
 {
     private $smarty;
-    private $categoryModel;
-    private $postModel;
-    private $fileUploader;
+    private CategoryRepository $categoryRepository;
+    private PostRepository $postRepository;
+    private PostService $postService;
+    private FileUploader $fileUploader;
 
+    // Simple authentication (for testing)
     private string $adminUsername = 'admin';
     private string $adminPassword = 'admin123';
 
     public function __construct($smarty)
     {
         $this->smarty = $smarty;
-        $this->categoryModel = new Category();
-        $this->postModel = new Post();
+        $this->categoryRepository = new CategoryRepository();
+        $this->postRepository = new PostRepository();
+        $this->postService = new PostService($this->postRepository);
         $this->fileUploader = new FileUploader();
     }
 
@@ -41,7 +45,7 @@ class AdminController
             header('Location: /admin/dashboard');
             exit;
         } else {
-            $this->smarty->assign('error', 'Incorrect login or password');
+            $this->smarty->assign('error', 'Invalid username or password');
             $this->smarty->display('admin/login.tpl');
         }
     }
@@ -59,7 +63,7 @@ class AdminController
     {
         $this->checkAuth();
 
-        $posts = $this->postModel->getAll();
+        $posts = $this->postRepository->getAll();
 
         $this->smarty->assign('posts', $posts);
         $this->smarty->display('admin/dashboard.tpl');
@@ -69,7 +73,7 @@ class AdminController
     {
         $this->checkAuth();
 
-        $categories = $this->categoryModel->getAll();
+        $categories = $this->categoryRepository->findAll();
 
         $this->smarty->assign('categories', $categories);
         $this->smarty->display('admin/post-create.tpl');
@@ -80,19 +84,31 @@ class AdminController
         $this->checkAuth();
 
         try {
+            // Upload image if provided
             $imageUrl = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $imageUrl = $this->fileUploader->upload($_FILES['image']);
             }
 
+            // Prepare post data
+            $postData = [
+                'title' => $_POST['title'],
+                'description' => $_POST['description'],
+                'content' => $_POST['content'],
+                'image' => $imageUrl
+            ];
+
+            // Get category IDs
             $categoryIds = $_POST['categories'] ?? [];
-            $this->postModel->createWithCategories($_POST, $imageUrl, $categoryIds);
+
+            // Create post with categories (using Service with transaction)
+            $this->postService->createPostWithCategories($postData, $categoryIds);
 
             header('Location: /admin/dashboard');
-
             exit;
+
         } catch (\Exception $e) {
-            $categories = $this->categoryModel->getAll();
+            $categories = $this->categoryRepository->findAll();
             $this->smarty->assign('categories', $categories);
             $this->smarty->assign('error', $e->getMessage());
             $this->smarty->display('admin/post-create.tpl');

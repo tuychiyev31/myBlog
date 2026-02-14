@@ -64,9 +64,13 @@ myBlog/
 │   ├── Helpers/
 │   │   ├── FileUploader.php    # Image upload: validation, unique naming, storage
 │   │   └── Router.php          # URL router with regex-based parameter matching
-│   └── Models/
-│       ├── Category.php        # Category queries (getAll, getById, getCategoriesWithPosts)
-│       └── Post.php            # Post queries (CRUD, pagination, similar posts, transactions)
+│   ├── Repositories/           # Repository Pattern - Data Access Layer
+│   │   ├── CategoryRepositoryInterface.php
+│   │   ├── CategoryRepository.php # Category database operations
+│   │   ├── PostRepositoryInterface.php
+│   │   └── PostRepository.php  # Post database operations (CRUD, pagination, similar)
+│   └── Services/               # Service Layer - Business Logic
+│       └── PostService.php     # Post business logic with transactions
 ├── templates/                  # Smarty templates
 │   ├── admin/
 │   │   ├── dashboard.tpl       # Admin post list
@@ -217,30 +221,61 @@ The admin panel allows you to create new posts with image upload.
 
 ## 🏗️ Architecture
 
-### MVC Pattern
+### Design Patterns Used
+
+This project implements **modern PHP architecture patterns** following SOLID principles:
+
+| Pattern | Implementation | Purpose |
+|---|---|---|
+| **MVC** | Controllers, Repositories, Templates | Separation of concerns |
+| **Repository Pattern** | `src/Repositories/` | Abstract data access layer |
+| **Service Layer** | `src/Services/` | Business logic isolation |
+| **Dependency Injection** | Constructor injection | Loose coupling, testability |
+| **Interface Segregation** | Repository interfaces | Contract-based programming |
+| **Singleton** | Database class | Single DB connection |
+
+### Architecture Layers
 
 | Layer | Location | Responsibility |
 |---|---|---|
-| **Model** | `src/Models/` | Database queries and data logic |
-| **View** | `templates/` | Smarty templates for rendering HTML |
-| **Controller** | `src/Controllers/` | Handles requests, connects Models to Views |
+| **Repository** | `src/Repositories/` | Data access - all database queries |
+| **Service** | `src/Services/` | Business logic - transactions, complex operations |
+| **Controller** | `src/Controllers/` | HTTP handling - request/response |
+| **View** | `templates/` | Presentation - Smarty templates |
 
 ### Request Flow
 
 ```
-Browser → Nginx → index.php → Router → Controller → Model → Database
-                                                        ↓
-Browser ← Nginx ← Smarty HTML ← Controller ← Model ←─┘
+User Request
+    ↓
+Nginx → index.php
+    ↓
+Router (regex matching)
+    ↓
+Controller (dependency injection)
+    ↓
+Repository (data access) ←→ Database
+    ↓              ↑
+Service (business logic)
+    ↓
+Controller
+    ↓
+Smarty Template
+    ↓
+HTML Response
 ```
 
 ### Key Design Patterns
 
 | Pattern | Where | Why |
 |---|---|---|
+| **Repository Pattern** | `PostRepository`, `CategoryRepository` | Abstracts data access, enables testing with mocks |
+| **Service Layer** | `PostService` | Encapsulates business logic and transactions |
+| **Dependency Injection** | All Controllers, Services | Testability, loose coupling, SOLID principles |
+| **Interface Segregation** | `PostRepositoryInterface` | Contract-based development, flexibility |
 | **Singleton** | `Database.php` | Single PDO connection shared across the app |
-| **MVC** | Controllers / Models / Templates | Separation of concerns |
-| **Dependency Injection** | Controllers receive Smarty via constructor | Testability and flexibility |
-| **Transaction** | `Post::createWithCategories()` | Atomic post + categories insert |
+| **MVC** | Controllers / Repositories / Templates | Separation of concerns |
+| **Transaction** | `PostService::createPostWithCategories()` | Atomic post + categories insert |
 
 ---
 
@@ -276,6 +311,42 @@ SET FOREIGN_KEY_CHECKS=1;
 "
 docker compose exec php php seeds/seed.php
 ```
+
+---
+
+---
+
+## 🎓 Architecture Improvements
+
+This project was **refactored** to implement professional architecture patterns based on technical feedback:
+
+### What Was Improved
+
+| Before (Initial) | After (Refactored) | Benefit |
+|---|---|---|
+| Direct database calls in Models | Repository Pattern with interfaces | Abstraction, testability, SOLID |
+| Business logic in Controllers | Service Layer | Single Responsibility |
+| `new Model()` in Controllers | Dependency Injection | Loose coupling |
+| No interfaces | Repository interfaces | Contract-based development |
+| No .gitignore | Proper .gitignore | Clean repository |
+
+### Code Quality Enhancements
+
+- ✅ **Repository Pattern** — All database operations abstracted
+- ✅ **Service Layer** — Business logic (transactions) separated
+- ✅ **Interface Segregation** — Repository contracts defined
+- ✅ **Dependency Injection** — Constructor injection throughout
+- ✅ **SOLID Principles** — Single Responsibility, Open/Closed
+- ✅ **Clean Git History** — No `vendor/`, `node_modules/` in repo
+
+### Future Improvements Roadmap
+
+- [ ] Dependency Injection Container (PSR-11)
+- [ ] Unit Tests with PHPUnit
+- [ ] Integration Tests
+- [ ] DTO (Data Transfer Objects)
+- [ ] Request Validation Layer
+- [ ] API Endpoints (RESTful)
 
 ---
 
